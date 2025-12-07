@@ -1,3 +1,5 @@
+from rest_framework.permissions import IsAuthenticated
+
 from api.models import Product, FlashSale, ProductViewHistory
 from api.serializers import FlashSaleSerializer
 from rest_framework import generics
@@ -13,6 +15,7 @@ class CustomPagination(PageNumberPagination):
 
 
 class FlashSaleListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = FlashSale.objects.all()
     serializer_class = FlashSaleSerializer
 
@@ -21,6 +24,7 @@ class FlashSaleListCreateView(generics.ListCreateAPIView):
     filterset_class = FalshFilter
 
 class CheckFlashSale(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request, product_id):
         try:
             product = Product.objects.get(id=product_id)

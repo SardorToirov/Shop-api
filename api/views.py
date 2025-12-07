@@ -8,10 +8,12 @@ from rest_framework.pagination import PageNumberPagination
 from django_filters import rest_framework as django_filters
 from .filters import ProductFilter
 from rest_framework import filters
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 
 class CategoryViews(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter, )
@@ -19,6 +21,7 @@ class CategoryViews(viewsets.ModelViewSet):
 
 
 class ReviewViews(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
@@ -28,6 +31,7 @@ class CustomPagination(PageNumberPagination):
 
 
 class ProductViews(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
