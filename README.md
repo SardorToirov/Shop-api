@@ -1,45 +1,77 @@
-# SHOP API
-# E-Commerce REST API
+# 🛍️ SHOP API (E-Commerce Backend)
 
-Bu loyiha **Django** va **Django REST Framework (DRF)** yordamida qurilgan to'liq funksional E-Commerce (Elektron tijorat) API tizimidir. Loyiha zamonaviy web-dasturlash standartlariga javob beradi va ma'lumotlar bazasi bilan ishlash uchun turli xil yondashuvlarni (ViewSets, Generics, APIView) o'z ichiga oladi.
+Bu loyiha **Django** va **Django REST Framework (DRF)** yordamida ishlab chiqilgan to'liq funksional elektron tijorat (E-Commerce) API tizimidir. 
 
-## 🚀 Loyiha Haqida
+Loyiha professional darajada yozilgan bo'lib, unda DRF ning turli xil arxitekturalari (**ViewSets, Generic Views, APIView**) qo'llanilgan. Tizim xavfsizligi **JWT (JSON Web Token)** orqali ta'minlanadi va katta hajmdagi ma'lumotlar bilan ishlash uchun **Pagination, Filtering va Searching** tizimlari mavjud.
 
-Ushbu API onlayn do'kon uchun zarur bo'lgan asosiy backend logikasini ta'minlaydi. Foydalanuvchilar mahsulotlarni ko'rishlari, kategoriyalarga ajratishlari, izlashlari, sharh qoldirishlari va chegirmalardan foydalanishlari mumkin.
+---
 
-### 🛠 Texnologiyalar
+## 🚀 Texnologiyalar (Tech Stack)
+
 * **Python** 3.x
-* **Django** 4.x or 5.x
-* **Django REST Framework**
-* **SQLite / PostgreSQL** (sozlamalarga qarab)
+* **Django** 4.x / 5.x
+* **Django REST Framework** (DRF)
+* **JWT Authentication** (Simple JWT)
+* **Django Filter** (Advanced Filtering)
+* **Database:** SQLite (Default) / PostgreSQL
+
+---
 
 ## ✨ Asosiy Imkoniyatlar (Features)
 
-Loyihada DRF ning turli xil ko'rinishlari va qo'shimcha imkoniyatlaridan foydalanilgan:
+Loyihada backend arxitekturasining eng yaxshi amaliyotlari qo'llanilgan:
 
-* **Views:**
-    * **ViewSets:** Asosiy CRUD operatsiyalari uchun (masalan, `ProductViewSet`, `CategoryViewSet`).
-    * **Generic Views:** Aniq maqsadli so'rovlar uchun (`ListCreateAPIView`, `RetrieveUpdateDestroyAPIView`).
-    * **APIView:** Maxsus logika talab qiladigan murakkabroq jarayonlar uchun.
-* **Pagination:** Katta hajmdagi ma'lumotlarni sahifalab chiqarish.
-* **Filtering:** Mahsulotlarni narxi, kategoriyasi va boshqa parametrlari bo'yicha filtrlash.
-* **Search:** Mahsulot nomi va tavsifi bo'yicha qidiruv tizimi.
+### 1. Views Arxitekturasi
+* **ViewSets (`ModelViewSet`):** Asosiy CRUD amallari uchun (Category, Product).
+* **Generic Views (`ListCreateAPIView`, `RetrieveUpdate...`):** Aniq maqsadli endpointlar uchun.
+* **APIView:** Maxsus biznes logika va murakkab so'rovlar uchun.
 
-## 🗂 Ma'lumotlar Bazasi Tuzilishi (Modellar)
+### 2. Ma'lumotlarni Boshqarish
+* **🔍 Search & Filter:** Mahsulotlarni nomi, narx oralig'i va kategoriyasi bo'yicha qidirish.
+* **📄 Pagination:** Ma'lumotlarni sahifalab (page-by-page) uzatish.
+* **⚡ Flash Sales:** Vaqt bilan cheklangan maxsus chegirmalar tizimi.
+* **📊 Analytics:** Foydalanuvchilarning ko'rish tarixi (`ProductViewHistory`).
 
-Loyiha quyidagi asosiy modellardan tashkil topgan:
+### 3. Xavfsizlik
+* **🔐 JWT Auth:** Tizimga xavfsiz kirish va token orqali so'rovlarni himoya qilish.
+* **Permissions:** Admin va oddiy foydalanuvchi huquqlarini ajratish.
 
-1.  **Category:** Mahsulotlar turkumi (Masalan: Elektronika, Kiyim-kechak).
-2.  **Product:** Sotuvdagi mahsulot (Nomi, Narxi, Tavsifi).
-3.  **Review:** Foydalanuvchilar tomonidan mahsulotga qoldirilgan baho va izoh.
-4.  **FlashSale:** Vaqt bilan cheklangan chegirmalar (Start va End vaqtlari bilan).
-5.  **ProductViewHistory:** Foydalanuvchilarning mahsulotlarni ko'rish tarixi (Analytics).
+---
+
+## 🗂 Ma'lumotlar Bazasi Tuzilishi (ER Diagram)
+
+Loyihaning ma'lumotlar bazasi quyidagi bog'liqliklarga ega:
 
 ```mermaid
 erDiagram
-    CATEGORY ||--|{ PRODUCT : contains
-    PRODUCT ||--|{ REVIEW : bas_on
-    PRODUCT ||--|{ FLASHSALE : includes
-    PRODUCT ||--|{ PRODUCTVIEWHISTORY : viewed_in
-    USER ||--|{ REVIEW : writes
-    USER ||--|{ PRODUCTVIEWHISTORY : views
+    CATEGORY ||--|{ PRODUCT : "o'z ichiga oladi"
+    PRODUCT ||--|{ REVIEW : "izoh qoldiriladi"
+    PRODUCT ||--|{ FLASHSALE : "chegirmada bo'ladi"
+    PRODUCT ||--|{ PRODUCTVIEWHISTORY : "ko'riladi"
+    USER ||--|{ REVIEW : "yozadi"
+    USER ||--|{ PRODUCTVIEWHISTORY : "ko'radi"
+```
+
+1. Loyihani yuklab olish:
+```
+git clone [https://github.com/SardorToirov/Shop-api.git]
+cd shop-api
+```
+2. Kutubxonalarni o'rnatish:
+
+```
+pip install -r requirements.txt
+```
+
+3. Migratsiyalarni amalga oshirish:
+
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+
+4. Serverni ishga tushirish:
+
+```
+python manage.py runserver
+```
