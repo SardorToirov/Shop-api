@@ -7,7 +7,6 @@ SECRET_KEY = os.getenv("SECRET_KEY", "change-me!!")
 DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -66,10 +65,6 @@ DATABASES = {
 }
 
 
-# ==============================
-# PASSWORD VALIDATION
-# ==============================
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -104,6 +99,7 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
@@ -154,5 +150,12 @@ DJOSER = {
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = "toirovsardor62@gmail.com"
 # EMAIL_HOST_PASSWORD = "gmail_app_password"
+
+
+from dotenv import load_dotenv
+load_dotenv()
+
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_ADMIN_CHAT_ID = os.getenv("TELEGRAM_ADMIN_CHAT_ID")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

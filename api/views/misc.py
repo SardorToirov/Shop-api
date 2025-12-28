@@ -9,7 +9,7 @@ from django_filters import rest_framework as django_filters
 from ..filters import ProductFilter
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
-
+from api.permissions import IsStaffOrReadOnly,IsOwnerOrReadOnly
 from ..models import Category, Review, Product,Order
 
 
@@ -17,7 +17,6 @@ from ..models import Category, Review, Product,Order
 
 
 class CategoryViews(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter, )
@@ -25,7 +24,6 @@ class CategoryViews(viewsets.ModelViewSet):
 
 
 class ReviewViews(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
@@ -35,7 +33,7 @@ class CustomPagination(PageNumberPagination):
 
 
 class ProductViews(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsStaffOrReadOnly]
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -62,7 +60,7 @@ class ProductViews(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = [IsOwnerOrReadOnly]
     queryset = Order.objects.all()
     serializer_class = OrderSerializers
 

@@ -1,3 +1,5 @@
+from . import signals
+
 from django.urls import path, include
 from rest_framework import routers
 from .views import ProductViews, CategoryViews, ReviewViews, OrderViewSet

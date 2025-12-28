@@ -35,6 +35,10 @@ class Order(models.Model):
     )
     phone_number = models.CharField(validators=[phone_regex],max_length=13)
 
+    @property
+    def total_price(self):
+        return self.product.price * self.quantity
+
     def set_status(self,new_status):
         if new_status not in dict(self.STATUS_CHOICE):
             raise ValueError("Invalid status!!!")
