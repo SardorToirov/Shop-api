@@ -1,61 +1,71 @@
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
 from rest_framework import status
-from drf_spectacular.utils import extend_schema
+
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+
 from api.models import Product
 
 
 @extend_schema(
-    summary="Admin adds stock to product",
-    description="Admin replenishes product stock by a given amount.",
+    summary="Admin replenishes product stock",
+    description="Admin mahsulot stokini ko‘paytiradi",
     parameters=[
-        {
-            "name": "product_id",
-            "type": int,
-            "location": "path",
-            "required": True,
-            "description": "ID of the product to replenish",
-        },
-        {
-            "name": "amount",
-            "type": int,
-            "location": "path",
-            "required": True,
-            "description": "Amount of stock to add",
-        },
+        OpenApiParameter(
+            name="amount",
+            description="Qancha miqdorda stok qo‘shiladi",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH
+        ),
+        OpenApiParameter(
+            name="product_id",
+            description="Mahsulot ID",
+            required=True,
+            type=int,
+            location=OpenApiParameter.PATH
+        ),
     ],
     responses={
-        200: dict,
-        400: dict
+        200: OpenApiResponse(
+            description="Stock muvaffaqiyatli qo‘shildi",
+            response={
+                "type": "object",
+                "properties": {
+                    "status": {"type": "string"},
+                    "message": {"type": "string"},
+                    "stock_qty": {"type": "number"}
+                }
+            }
+        ),
+        404: OpenApiResponse(description="Product topilmadi"),
+        400: OpenApiResponse(description="Noto‘g‘ri input"),
     }
 )
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAdminUser])
 def admin_replenish_stock(request, product_id, amount):
     """
-    Admin API to replenish product stock.
-    Path parameters:
-        - product_id (int): ID of the product
-        - amount (int): quantity to add
+    POST /api/admin/products/{product_id}/replenish/{amount}/
     """
-    try:
-        product = Product.objects.get(id=product_id)
-        product.increase_stock(amount)
+    product = get_object_or_404(Product, id=product_id)
 
-        return Response({
-            'status': 'success',
-            'message': f'Stock increased by {amount} for product "{product.name}"'
-        }, status=status.HTTP_200_OK)
+    if amount <= 0:
+        return JsonResponse(
+            {"status": "error", "message": "amount musbat bo‘lishi kerak"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-    except Product.DoesNotExist:
-        return Response({
-            'status': 'error',
-            'message': f'Product with ID {product_id} not found'
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Oddiy stok oshirish
+    product.increase_stock(amount)
+    product.save()
 
-    except ValueError:
-        return Response({
-            'status': 'error',
-            'message': 'Invalid input'
-        }, status=status.HTTP_400_BAD_REQUEST)
+    return JsonResponse({
+        "status": "success",
+        "message": f"Stock {amount} ga oshirildi",
+        "stock_qty": product.stock_qty
+    })

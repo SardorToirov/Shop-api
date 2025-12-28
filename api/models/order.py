@@ -8,6 +8,7 @@ phone_regex = RegexValidator(
     message="Phone number must be in the format: '998xxxxxxxxx'."
 )
 
+
 class Order(models.Model):
     PENDING = 'Pending'
     PROCESSING = 'Processing'
