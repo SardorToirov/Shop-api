@@ -34,7 +34,7 @@ class Order(models.Model):
         default=PENDING,
     )
     phone_number = models.CharField(validators=[phone_regex],max_length=13)
-
+    is_paid = models.BooleanField(default=False, null=True)
     @property
     def total_price(self):
         return self.product.price * self.quantity

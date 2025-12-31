@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'djoser',
 
     'api',
+    'billing'
 ]
 
 
@@ -165,6 +166,10 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+
+
+STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
