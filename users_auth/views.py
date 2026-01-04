@@ -53,6 +53,7 @@ class SMSLoginViewSet(viewsets.ViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
     def verify_sms(self, request):
         serializer = VerifySMSSerializer(data=request.data)
         if serializer.is_valid():
