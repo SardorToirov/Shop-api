@@ -8,6 +8,10 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 INSTALLED_APPS = [
+    # 🔴 CUSTOM USER ENG BOSHDA
+    'users_auth',
+
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -15,6 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Third-party
     "drf_spectacular",
     "drf_spectacular_sidecar",
     'rest_framework',
@@ -22,9 +27,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'djoser',
 
+    # Local apps
     'api',
-    'billing'
+    'billing',
 ]
+
 
 
 MIDDLEWARE = [
@@ -64,7 +71,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+AUTH_USER_MODEL = 'users_auth.CustomUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -133,9 +140,12 @@ SPECTACULAR_SETTINGS = {
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
+
 
 DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
@@ -143,6 +153,12 @@ DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -170,6 +186,6 @@ CELERY_TIMEZONE = 'UTC'
 
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-
+SMS_KEY = os.environ.get('SMS_KEY')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

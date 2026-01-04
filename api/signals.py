@@ -13,7 +13,7 @@ def notify_admin(sender, instance, created, **kwargs):
             order_id=instance.id,
             product_name=instance.product.name,
             quantity=instance.quantity,
-            customer_username=instance.customer.username,
+            customer_username=str(instance.customer), # 👈 username qo'shildi
             phone_number=instance.phone_number
         )
 
@@ -23,4 +23,4 @@ def mark_order_as_paid(sender, instance, created, **kwargs):
     if created and instance.status == "success":
         order = instance.order
         order.is_paid = True
-        order.save()
+        order.save(update_fields=["is_paid"])

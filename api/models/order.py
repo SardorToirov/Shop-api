@@ -1,13 +1,12 @@
-from django.contrib.auth.models import User
 from django.db import models
 from .product import Product
 from django.core.validators import RegexValidator
+from django.conf import settings
 
 phone_regex = RegexValidator(
     regex=r'^\+998\d{9}$',
-    message="Phone number must be in the format: '998xxxxxxxxx'."
+    message="Phone number must be in the format: '+998xxxxxxxxx'."
 )
-
 
 class Order(models.Model):
     PENDING = 'Pending'
@@ -24,8 +23,11 @@ class Order(models.Model):
         (CANCELED, 'Canceled'),
     ]
 
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    customer = models.ForeignKey(User,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    customer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
     quantity = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
@@ -33,26 +35,29 @@ class Order(models.Model):
         choices=STATUS_CHOICE,
         default=PENDING,
     )
-    phone_number = models.CharField(validators=[phone_regex],max_length=13)
-    is_paid = models.BooleanField(default=False, null=True)
+    phone_number = models.CharField(
+        validators=[phone_regex],
+        max_length=13
+    )
+    is_paid = models.BooleanField(default=False)
+
     @property
     def total_price(self):
         return self.product.price * self.quantity
 
-    def set_status(self,new_status):
+    def set_status(self, new_status):
         if new_status not in dict(self.STATUS_CHOICE):
             raise ValueError("Invalid status!!!")
         self.status = new_status
         self.save()
 
-    def is_transition_allowed(self,new_status):
+    def is_transition_allowed(self, new_status):
         allow_transition = {
-            self.PENDING: [self.PROCESSING,self.CANCELED],
-            self.PROCESSING: [self.SHIPPED,self.CANCELED],
-            self.SHIPPED: [self.DELIVERED,self.CANCELED]
+            self.PENDING: [self.PROCESSING, self.CANCELED],
+            self.PROCESSING: [self.SHIPPED, self.CANCELED],
+            self.SHIPPED: [self.DELIVERED, self.CANCELED],
         }
-
-        return new_status in allow_transition.get(self.status,[])
+        return new_status in allow_transition.get(self.status, [])
 
     def __str__(self):
-        return f"Order ( {self.product.name} by {self.customer.username} )"
+        return f"Order ({self.product.name} by {self.customer})"

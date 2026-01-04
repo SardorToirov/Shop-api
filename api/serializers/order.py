@@ -1,20 +1,32 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-
-from api.models import Order,Product
+from api.models import Order, Product
 
 
 class OrderSerializers(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
+    phone_number = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['id','product','customer','quantity','created_at','total_price','phone_number', 'is_paid']
+        fields = [
+            'id',
+            'product',
+            'customer',
+            'quantity',
+            'created_at',
+            'total_price',
+            'phone_number',
+            'is_paid'
+        ]
 
-    def get_total_price(self,obj):
+    def get_total_price(self, obj):
         return obj.product.price * obj.quantity
 
-    def validate_quantity(self,value):
+    def get_phone_number(self, obj):
+        return obj.customer.phone_number
+
+    def validate_quantity(self, value):
         try:
             product_id = self.initial_data['product']
             product = Product.objects.get(id=product_id)
@@ -31,11 +43,9 @@ class OrderSerializers(serializers.ModelSerializer):
 
     def create(self, validated_data):
         order = Order.objects.create(**validated_data)
+
         product = order.product
         product.stock -= order.quantity
         product.save()
+
         return order
-    def send_confirmation_email(self,order):
-        print(f"send confirmation email for Order {order.id}")
-
-

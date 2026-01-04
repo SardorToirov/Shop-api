@@ -1,12 +1,20 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
-
+from django.conf import settings
 from .product import Product
 
+
 class Review(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='reviews')
-    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='reviews')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
     content = models.TextField()
     rating = models.PositiveIntegerField()
     date_posted = models.DateTimeField(auto_now_add=True)
@@ -16,7 +24,7 @@ class Review(models.Model):
 
 
 class FlashSale(models.Model):
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     discount_percentage = models.PositiveIntegerField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -26,10 +34,13 @@ class FlashSale(models.Model):
         return self.start_time <= now <= self.end_time
 
     class Meta:
-        unique_together = ('product','start_time','end_time')
+        unique_together = ('product', 'start_time', 'end_time')
+
 
 class ProductViewHistory(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
-

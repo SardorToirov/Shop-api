@@ -2,28 +2,29 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-
-from api.serializers import ProductSerializer,CategorySerializer,ReviewSerializer,OrderSerializers
+from api.serializers import ProductSerializer, CategorySerializer, ReviewSerializer, OrderSerializers
 from rest_framework.pagination import PageNumberPagination
 from django_filters import rest_framework as django_filters
 from ..filters import ProductFilter
 from rest_framework import filters
-from rest_framework.permissions import IsAuthenticated
-from api.permissions import IsStaffOrReadOnly,IsOwnerOrReadOnly
-from ..models import Category, Review, Product,Order
-
-
-# Create your views here.
+# 🔴 IsAuthenticated ni import qilish kerak
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from api.permissions import IsStaffOrReadOnly, IsOwnerOrReadOnly
+from ..models import Category, Review, Product, Order
 
 
 class CategoryViews(viewsets.ModelViewSet):
+    # 🔴 YANGI: Faqat ro'yxatdan o'tganlar ko'ra oladi
+    permission_classes = [IsAuthenticated]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = (filters.SearchFilter, )
+    filter_backends = (filters.SearchFilter,)
     search_fields = ['name']
 
 
 class ReviewViews(viewsets.ModelViewSet):
+    # 🔴 YANGI: Faqat ro'yxatdan o'tganlar ko'ra oladi
+    permission_classes = [IsAuthenticated]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
@@ -33,17 +34,21 @@ class CustomPagination(PageNumberPagination):
 
 
 class ProductViews(viewsets.ModelViewSet):
-    permission_classes = [IsStaffOrReadOnly]
+    # 🔴 O'ZGARTIRILDI:
+    # IsAuthenticated -> Login qilmaganlar umuman kirolmaydi (401 beradi).
+    # IsStaffOrReadOnly -> Login qilgan oddiy user faqat ko'radi, Admin o'zgartiradi.
+    permission_classes = [IsAuthenticated, IsStaffOrReadOnly]
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
     pagination_class = CustomPagination
-    filter_backends = (django_filters.DjangoFilterBackend,filters.SearchFilter)
+    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = ProductFilter
     search_fields = ['name', 'description']
 
     def list(self, request, *args, **kwargs):
-        category = request.query_params.get('category',None)
+        category = request.query_params.get('category', None)
         if category:
             self.queryset = self.queryset.filter(category=category)
         return super().list(request, *args, **kwargs)
@@ -52,15 +57,20 @@ class ProductViews(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         related_products = Product.objects.filter(category=instance.category).exclude(id=instance.id)[:5]
-        related_serializer = ProductSerializer(related_products,many=True)
+        related_serializer = ProductSerializer(related_products, many=True)
         return Response({
-            'product':serializer.data,
-            'related_products':related_serializer.data
+            'product': serializer.data,
+            'related_products': related_serializer.data
         })
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [AllowAny]
     queryset = Order.objects.all()
     serializer_class = OrderSerializers
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(owner=user)
